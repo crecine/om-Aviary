@@ -1,6 +1,14 @@
 name: test composite action
 
 on:
+    push:
+      branches: [ main ]
+    pull_request:
+      branches: [ main ]
+    pull_request_target:
+      branches: [ main ]
+    merge_group:
+      branches: [ main ]
     workflow_dispatch:
 
 jobs:
