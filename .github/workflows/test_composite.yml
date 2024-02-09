@@ -1,0 +1,13 @@
+name: test composite action
+
+on:
+    workflow_dispatch:
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: run composite
+              uses: ./.github/workflows/action.yml
+              with:
+                example_secret: ${{ secrets.example_secret }}

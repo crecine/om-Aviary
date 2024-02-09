@@ -1,0 +1,20 @@
+name: "Prepare Environment"
+
+inputs:
+    example_secret:
+        required: true
+
+runs:
+    using: "composite"
+    steps:
+        - name: test secret
+          shell: bash
+          env:
+            secret: ${{ inputs.example_secret }}
+          run: |
+            echo ${{ inputs.example_secret }}
+            echo "$inputs.example_secret"
+            echo ${{ env.secret }}
+            echo "$env.secret"
+            echo ${{ secret }}
+            echo "$secret"
