@@ -16,5 +16,3 @@ runs:
             echo "$inputs.example_secret"
             echo ${{ env.secret }}
             echo "$env.secret"
-            echo ${{ secret }}
-            echo "$secret"
