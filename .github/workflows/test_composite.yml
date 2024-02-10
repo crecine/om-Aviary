@@ -17,6 +17,6 @@ jobs:
         steps:
             - uses: actions/checkout@v3
             - name: run composite
-              uses: ./.github/workflows/action.yml
+              uses: ./.github/actions/example_composite
               with:
                 example_secret: ${{ secrets.example_secret }}
