@@ -7,7 +7,6 @@ Reserve missions are enabled for the following mission types:
 * height_energy    (completed)
 * 2ODF (collocation) (complete)
 * 2DOF (shooting)    (in-progress)
-* height_energy (shooting)    (future work)
 
 A reserve mission can be created by appending one or more reserve phases to `phase_info` after the last phase of the regular mission.
 To create a simple reserve mission, copy your current cruise phase which is located in `phase_info`.

@@ -611,6 +611,44 @@ class AviaryProblem(om.Problem):
 
         if self.analysis_scheme is AnalysisScheme.SHOOTING:
             if self.submodel_fix:
+                if self.reserve_phases:
+                    reserve_phase_info = {self.phase_info[phase]
+                                          for phase in self.reserve_phases}
+                    reserve_group = om.Group()
+                    reserve_traj = FlexibleTraj(
+                        Phases=reserve_phase_info,
+                        traj_final_state_output=[
+                            Dynamic.Mission.MASS,
+                            Dynamic.Mission.DISTANCE,
+                        ],
+                        traj_initial_state_input=[
+                            Dynamic.Mission.MASS,
+                            Dynamic.Mission.DISTANCE,
+                            Dynamic.Mission.ALTITUDE,
+                        ],
+                        traj_event_trigger_input=[
+                            ('climb3', Dynamic.Mission.ALTITUDE, 0,),
+                            ('cruise', Dynamic.Mission.DISTANCE, 0,),
+                        ],
+                    )
+                    reserve_group.add_subsystem('traj', reserve_traj)
+                    reserve_group.add_subsystem(
+                        'reserve_mission_fuel',
+                        om.ExecComp(
+                            'reserve_fuel_burned = mass_initial - mass_final',
+                            reserve_fuel_burned={'units': "lbm"},
+                            mass_initial={'units': 'lbm'},
+                            mass_final={'units': 'lbm'},
+                        ),
+                        promotes_inputs=[('mass_initial', 'traj.mass_initial'),
+                                         ('mass_final', 'traj.mass_final')],
+                        promotes_outputs=[
+                            ('reserve_fuel_burned', Mission.Summary.RESERVE_FUEL_BURNED)],
+                    )
+
+                    self.model.add_subsystem('reserve_mission', reserve_group, promotes_inputs=[
+                        ('altitude_initial', Mission.Design.CRUISE_ALTITUDE)])
+
                 self._add_fuel_reserve_component(
                     post_mission=False, reserves_name='reserve_fuel_estimate')
                 add_default_sgm_args(self.descent_phases, self.ode_args)
