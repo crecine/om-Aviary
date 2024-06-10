@@ -636,7 +636,7 @@ class AviaryProblem(om.Problem):
                     promotes_outputs=[
                         ('reserve_fuel_burned', Mission.Summary.RESERVE_FUEL_BURNED)],
                 )
-                reserve_group.connect('traj.mass_initial',
+                reserve_group.connect('traj.mass_initial',  # how do we get this? reverse shooting?
                                       'reserve_mission_fuel.mass_initial')
                 reserve_group.connect(
                     'traj.mass_final', 'reserve_mission_fuel.mass_final')
