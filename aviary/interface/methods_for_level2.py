@@ -605,43 +605,49 @@ class AviaryProblem(om.Problem):
         add_opts2vals(self.model, OptionsToValues, self.aviary_inputs)
 
         if self.analysis_scheme is AnalysisScheme.SHOOTING:
-                if self.reserve_phases:
-                    reserve_phase_info = {self.phase_info[phase]
-                                          for phase in self.reserve_phases}
-                    reserve_group = om.Group()
-                    reserve_traj = FlexibleTraj(
-                        Phases=reserve_phase_info,
-                        traj_final_state_output=[
-                            Dynamic.Mission.MASS,
-                            Dynamic.Mission.DISTANCE,
-                        ],
-                        traj_initial_state_input=[
-                            Dynamic.Mission.MASS,
-                            Dynamic.Mission.DISTANCE,
-                            Dynamic.Mission.ALTITUDE,
-                        ],
-                        traj_event_trigger_input=[
-                            ('climb3', Dynamic.Mission.ALTITUDE, 0,),
-                            ('cruise', Dynamic.Mission.DISTANCE, 0,),
-                        ],
-                    )
-                    reserve_group.add_subsystem('traj', reserve_traj)
-                    reserve_group.add_subsystem(
-                        'reserve_mission_fuel',
-                        om.ExecComp(
-                            'reserve_fuel_burned = mass_initial - mass_final',
-                            reserve_fuel_burned={'units': "lbm"},
-                            mass_initial={'units': 'lbm'},
-                            mass_final={'units': 'lbm'},
-                        ),
-                        promotes_inputs=[('mass_initial', 'traj.mass_initial'),
-                                         ('mass_final', 'traj.mass_final')],
-                        promotes_outputs=[
-                            ('reserve_fuel_burned', Mission.Summary.RESERVE_FUEL_BURNED)],
-                    )
+            if self.reserve_phases:
+                reserve_phase_info = {phase: self.phase_info[phase]
+                                      for phase in self.reserve_phases}
+                reserve_group = om.Group()
+                reserve_traj = FlexibleTraj(
+                    Phases=reserve_phase_info,
+                    traj_final_state_output=[
+                        Dynamic.Mission.MASS,
+                        Dynamic.Mission.DISTANCE,
+                    ],
+                    traj_initial_state_input=[
+                        Dynamic.Mission.MASS,
+                        Dynamic.Mission.DISTANCE,
+                        Dynamic.Mission.ALTITUDE,
+                    ],
+                    traj_event_trigger_input=[
+                        ('reserve_cruise', Dynamic.Mission.DISTANCE, 0,),
+                    ],
+                )
+                reserve_group.add_subsystem('traj', reserve_traj)
+                reserve_group.add_subsystem(
+                    'reserve_mission_fuel',
+                    om.ExecComp(
+                        'reserve_fuel_burned = mass_initial - mass_final',
+                        reserve_fuel_burned={'units': "lbm"},
+                        mass_initial={'units': 'lbm'},
+                        mass_final={'units': 'lbm'},
+                    ),
+                    promotes_outputs=[
+                        ('reserve_fuel_burned', Mission.Summary.RESERVE_FUEL_BURNED)],
+                )
+                reserve_group.connect('traj.mass_initial',
+                                      'reserve_mission_fuel.mass_initial')
+                reserve_group.connect(
+                    'traj.mass_final', 'reserve_mission_fuel.mass_final')
 
-                    self.model.add_subsystem('reserve_mission', reserve_group, promotes_inputs=[
-                        ('altitude_initial', Mission.Design.CRUISE_ALTITUDE)])
+                self.model.add_subsystem(
+                    'reserve_mission',
+                    reserve_group,
+                    promotes_inputs=[
+                        ('traj.altitude_initial', Mission.Design.CRUISE_ALTITUDE)],
+                    promotes_outputs=[Mission.Summary.RESERVE_FUEL_BURNED],
+                )
 
             self._add_fuel_reserve_component(
                 post_mission=False, reserves_name='reserve_fuel_estimate')
