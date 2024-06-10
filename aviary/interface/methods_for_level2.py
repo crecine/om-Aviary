@@ -56,8 +56,8 @@ from aviary.subsystems.aerodynamics.aerodynamics_builder import CoreAerodynamics
 from aviary.utils.preprocessors import preprocess_propulsion
 from aviary.utils.merge_variable_metadata import merge_meta_data
 
-from aviary.interface.default_phase_info.two_dof_fiti_copy import add_default_sgm_args
-from aviary.mission.gasp_based.idle_descent_estimation import descent_range_and_fuel, add_descent_estimation_as_submodel
+from aviary.interface.default_phase_info.two_dof_fiti import add_default_sgm_args
+from aviary.mission.gasp_based.idle_descent_estimation import add_descent_estimation_as_submodel
 from aviary.mission.phase_builder_base import PhaseBuilderBase
 
 
@@ -234,11 +234,6 @@ class AviaryProblem(om.Problem):
         self.regular_phases = []
         self.reserve_phases = []
 
-        # temporary until a tagged release of OM contains the necessary fix
-        if analysis_scheme is AnalysisScheme.SHOOTING:
-            from aviary.utils.test_utils.check_om_version import CheckForOMSubmodelFix
-            self.submodel_fix = CheckForOMSubmodelFix()
-
     def load_inputs(self, aviary_inputs, phase_info=None, engine_builder=None, meta_data=BaseMetaData, verbosity=Verbosity.BRIEF):
         """
         This method loads the aviary_values inputs and options that the
@@ -306,7 +301,7 @@ class AviaryProblem(om.Problem):
                     if self.analysis_scheme is AnalysisScheme.COLLOCATION:
                         from aviary.interface.default_phase_info.two_dof import phase_info
                     elif self.analysis_scheme is AnalysisScheme.SHOOTING:
-                        from aviary.interface.default_phase_info.two_dof_fiti_copy import phase_info, \
+                        from aviary.interface.default_phase_info.two_dof_fiti import phase_info, \
                             phase_info_parameterization
                     phase_info, _ = phase_info_parameterization(
                         phase_info, None, self.aviary_inputs)
@@ -401,7 +396,7 @@ class AviaryProblem(om.Problem):
         self._update_metadata_from_subsystems()
 
         if Settings.VERBOSITY not in aviary_inputs:
-            aviary_inputs.set_val(Settings.VERBOSITY, Verbosity.BRIEF)
+            aviary_inputs.set_val(Settings.VERBOSITY, verbosity)
 
         self.aviary_inputs = aviary_inputs
         return aviary_inputs
@@ -610,7 +605,6 @@ class AviaryProblem(om.Problem):
         add_opts2vals(self.model, OptionsToValues, self.aviary_inputs)
 
         if self.analysis_scheme is AnalysisScheme.SHOOTING:
-            if self.submodel_fix:
                 if self.reserve_phases:
                     reserve_phase_info = {self.phase_info[phase]
                                           for phase in self.reserve_phases}
@@ -649,18 +643,16 @@ class AviaryProblem(om.Problem):
                     self.model.add_subsystem('reserve_mission', reserve_group, promotes_inputs=[
                         ('altitude_initial', Mission.Design.CRUISE_ALTITUDE)])
 
-                self._add_fuel_reserve_component(
-                    post_mission=False, reserves_name='reserve_fuel_estimate')
-                add_default_sgm_args(self.descent_phases, self.ode_args)
-                add_descent_estimation_as_submodel(
-                    self,
-                    phases=self.descent_phases,
-                    cruise_mach=self.cruise_mach,
-                    cruise_alt=self.cruise_alt,
-                    reserve_fuel='reserve_fuel_estimate',
-                )
-            else:
-                self._add_fuel_reserve_component(post_mission=False)
+            self._add_fuel_reserve_component(
+                post_mission=False, reserves_name='reserve_fuel_estimate')
+            add_default_sgm_args(self.descent_phases, self.ode_args)
+            add_descent_estimation_as_submodel(
+                self,
+                phases=self.descent_phases,
+                cruise_mach=self.cruise_mach,
+                cruise_alt=self.cruise_alt,
+                reserve_fuel='reserve_fuel_estimate',
+            )
 
         # Add thrust-to-weight ratio subsystem
         self.model.add_subsystem(
@@ -1025,38 +1017,8 @@ class AviaryProblem(om.Problem):
             traj = self.model.add_subsystem('traj', dm.Trajectory())
 
         elif self.analysis_scheme is AnalysisScheme.SHOOTING:
-            vb = self.aviary_inputs.get_val('verbosity')
+            vb = self.aviary_inputs.get_val(Settings.VERBOSITY)
             add_default_sgm_args(self.phase_info, self.ode_args, vb)
-
-            cruise_options = self.phase_info['cruise']['user_options']
-
-            if self.submodel_fix:
-                self.model.connect('start_of_descent_mass',
-                                   'traj.SGMCruise_mass_trigger')
-                cruise_options['attr:mass_trigger'] = ('SGMCruise_mass_trigger', 'lbm')
-                extra_inputs = []
-            else:
-                initial_mass = self.aviary_inputs.get_val(
-                    Mission.Summary.GROSS_MASS, 'lbm')
-                extra_inputs = [
-                    Aircraft.Design.OPERATING_MASS,
-                    Aircraft.CrewPayload.PASSENGER_PAYLOAD_MASS,
-                    Mission.Design.RESERVE_FUEL,
-                ]
-
-                add_default_sgm_args(self.descent_phases, self.ode_args, vb)
-                descent_estimation = descent_range_and_fuel(
-                    phases=self.descent_phases,
-                    initial_mass=initial_mass,
-                    cruise_alt=self.cruise_alt,
-                    cruise_mach=self.cruise_mach)
-
-                estimated_descent_range = descent_estimation['refined_guess']['distance_flown']
-                end_of_cruise_range = self.target_range - estimated_descent_range
-
-                # based on reserve_fuel
-                estimated_descent_fuel = descent_estimation['refined_guess']['fuel_burned']
-                cruise_options['descent_fuel'] = (estimated_descent_fuel, 'lbm')
 
             full_traj = FlexibleTraj(
                 Phases=self.phase_info,
@@ -1082,7 +1044,7 @@ class AviaryProblem(om.Problem):
                     ('cruise', Dynamic.Mission.MASS),
                 ]
             )
-            traj = self.model.add_subsystem('traj', full_traj, promotes_inputs=extra_inputs+[
+            traj = self.model.add_subsystem('traj', full_traj, promotes_inputs=[
                                             ('altitude_initial', Mission.Design.CRUISE_ALTITUDE)])
 
             self.model.add_subsystem(
@@ -1093,6 +1055,7 @@ class AviaryProblem(om.Problem):
                             traj_mass_final={'units': 'lbm'},
                             ))
 
+            self.model.connect('start_of_descent_mass', 'traj.SGMCruise_mass_trigger')
             self.model.connect(
                 'traj.mass_final',
                 'actual_descent_fuel.traj_mass_final',
@@ -1254,8 +1217,7 @@ class AviaryProblem(om.Problem):
                     self.model.connect(f"traj.{self.reserve_phases[-1]}.timeseries.mass",
                                        "reserve_fuel_burned.mass_final", src_indices=[-1])
 
-            if getattr(self, 'submodel_fix', True):
-                self._add_fuel_reserve_component()
+            self._add_fuel_reserve_component()
 
             # TODO: need to add some sort of check that this value is less than the fuel capacity
             # TODO: the overall_fuel variable is the burned fuel plus the reserve, but should

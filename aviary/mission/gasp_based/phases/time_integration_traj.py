@@ -60,11 +60,10 @@ class FlexibleTraj(TimeIntegrationTrajBase):
                 for name, data in vals_to_set.items():
                     var, units = data
                     if name.startswith('attr:'):
-                        new_val = (
-                            np.squeeze(self.convert2units(var, inputs[var], units)),
-                            units
-                        )
-                        setattr(phase, name.replace('attr:', ''), new_val)
+                        if isinstance(var, str):
+                            val = np.squeeze(self.convert2units(var, inputs[var], units))
+                            data = (val, units)
+                        setattr(phase, name.replace('attr:', ''), data)
                     elif name.startswith('rotation.'):
                         phase.rotation.set_val(name.replace(
                             'rotation.', ''), var, units=units)
