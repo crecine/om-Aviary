@@ -1,7 +1,7 @@
 import openmdao.api as om
 from openmdao.utils.assert_utils import assert_near_equal
 
-from aviary.interface.methods_for_level2 import AviaryGroup
+from aviary.utils.base_classes import AviaryGroup
 from aviary.mission.gasp_based.phases.time_integration_traj import FlexibleTraj
 from aviary.mission.flops_based.phases.time_integration_phases import \
     SGMHeightEnergy, SGMDetailedTakeoff, SGMDetailedLanding

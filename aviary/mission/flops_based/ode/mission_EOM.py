@@ -1,5 +1,6 @@
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.mission.ode.altitude_rate import AltitudeRate
 from aviary.mission.ode.specific_energy_rate import SpecificEnergyRate
 from aviary.mission.flops_based.ode.range_rate import RangeRate
@@ -7,10 +8,7 @@ from aviary.mission.flops_based.ode.required_thrust import RequiredThrust
 from aviary.variable_info.variables import Dynamic
 
 
-class MissionEOM(om.Group):
-    def initialize(self):
-        self.options.declare('num_nodes', types=int,
-                             desc='Number of nodes to be evaluated in the RHS')
+class MissionEOM(AviaryGroup):
 
     def setup(self):
         nn = self.options['num_nodes']

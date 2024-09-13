@@ -1,22 +1,19 @@
 import openmdao.api as om
 import numpy as np
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.variable_info.variables import Aircraft, Dynamic
 from aviary.utils.aviary_values import AviaryValues
 from aviary.subsystems.propulsion.motor.model.motor_map import MotorMap
 
 
-class MotorPreMission(om.Group):
+class MotorPreMission(AviaryGroup):
     """
     Calculate electric motor mass for a single motor
     """
 
     def initialize(self):
-        self.options.declare(
-            "aviary_inputs", types=AviaryValues,
-            desc="collection of Aircraft/Mission specific options",
-            default=None,
-        )
+        super().initialize()
         self.name = 'motor_premission'
 
     def setup(self):

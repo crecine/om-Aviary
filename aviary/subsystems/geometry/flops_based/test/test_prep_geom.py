@@ -4,6 +4,7 @@ import openmdao.api as om
 from openmdao.utils.assert_utils import assert_check_partials
 from parameterized import parameterized
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.geometry.flops_based.canard import Canard
 from aviary.subsystems.geometry.flops_based.characteristic_lengths import \
     CharacteristicLengths
@@ -46,12 +47,7 @@ class PrepGeomTest(unittest.TestCase):
                           name_func=print_case)
     def test_case(self, case_name):
 
-        class PreMission(om.Group):
-
-            def initialize(self):
-                self.options.declare(
-                    'aviary_options', types=AviaryValues,
-                    desc='collection of Aircraft/Mission specific options')
+        class PreMission(AviaryGroup):
 
             def setup(self):
                 aviary_options = self.options['aviary_options']
@@ -60,6 +56,7 @@ class PrepGeomTest(unittest.TestCase):
                                    promotes=['*'])
 
             def configure(self):
+                super().configure()
                 aviary_options = self.options['aviary_options']
 
                 override_aviary_vars(self, aviary_options)

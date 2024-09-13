@@ -2,6 +2,7 @@ import numpy as np
 import openmdao.api as om
 from aviary.subsystems.atmosphere.atmosphere import Atmosphere
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.constants import RHO_SEA_LEVEL_ENGLISH as rho_sl
 from aviary.mission.gasp_based.ode.base_ode import BaseODE
 from aviary.mission.gasp_based.ode.params import ParamPort
@@ -120,14 +121,14 @@ class UnsteadySolvedODE(BaseODE):
         )
 
         control_iter_group = self.add_subsystem("control_iter_group",
-                                                subsys=om.Group(),
+                                                subsys=AviaryGroup(),
                                                 promotes_inputs=["*"],
                                                 promotes_outputs=["*"])
 
         # Also need to change the run script and the iter group solver when using this;
         # just testing for now
         throttle_balance_group = self.add_subsystem("throttle_balance_group",
-                                                    om.Group(),
+                                                    AviaryGroup(),
                                                     promotes=["*"])
 
         throttle_balance_comp = om.BalanceComp()

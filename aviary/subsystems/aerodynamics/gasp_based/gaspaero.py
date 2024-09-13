@@ -4,6 +4,7 @@ import warnings
 import openmdao.api as om
 from openmdao.utils import cs_safe as cs
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.constants import GRAV_ENGLISH_LBM
 from aviary.subsystems.aerodynamics.gasp_based.common import (AeroForces,
                                                               CLFromLift,
@@ -778,24 +779,17 @@ class AeroGeom(om.ExplicitComponent):
         outputs["cf"] = cf
 
 
-class AeroSetup(om.Group):
+class AeroSetup(AviaryGroup):
     """Calculations for setting up aero"""
 
     def initialize(self):
-        self.options.declare("num_nodes", default=1, types=int)
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options')
+        super().initialize()
         self.options.declare(
             "input_atmos",
             default=False,
             types=bool,
             desc="Directly input speed of sound and kinematic viscosity instead of "
             "computing them with an atmospherics component. For testing.",
-        )
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options'
         )
 
     def setup(self):
@@ -1282,15 +1276,11 @@ class LiftCoeffClean(om.ExplicitComponent):
         outputs["CL_max"] = CL_max_flaps * (1 + lift_ratio)
 
 
-class CruiseAero(om.Group):
+class CruiseAero(AviaryGroup):
     """Top-level aerodynamics group for cruise (no flaps, no landing gear)"""
 
     def initialize(self):
-        self.options.declare("num_nodes", default=1, types=int)
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options')
-
+        super().initialize()
         self.options.declare(
             "output_alpha",
             default=False,
@@ -1303,10 +1293,6 @@ class CruiseAero(om.Group):
             types=bool,
             desc="Directly input speed of sound and kinematic viscosity instead of "
             "computing them with an atmospherics component. For testing.",
-        )
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options'
         )
 
     def setup(self):
@@ -1330,14 +1316,11 @@ class CruiseAero(om.Group):
         self.add_subsystem("forces", AeroForces(num_nodes=nn), promotes=["*"])
 
 
-class LowSpeedAero(om.Group):
+class LowSpeedAero(AviaryGroup):
     """Top-level aerodynamics group for near-ground flight"""
 
     def initialize(self):
-        self.options.declare("num_nodes", default=1, types=int)
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options')
+        super().initialize()
         self.options.declare(
             "retract_gear",
             default=True,
@@ -1365,10 +1348,6 @@ class LowSpeedAero(om.Group):
             types=bool,
             desc="Directly input speed of sound and kinematic viscosity instead of "
             "computing them with an atmospherics component. For testing.",
-        )
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options'
         )
 
     def setup(self):

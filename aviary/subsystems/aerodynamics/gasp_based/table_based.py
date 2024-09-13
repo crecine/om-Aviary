@@ -5,6 +5,7 @@ import openmdao.api as om
 
 from pathlib import Path
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.constants import GRAV_ENGLISH_LBM
 from aviary.subsystems.aerodynamics.gasp_based.common import AeroForces, TimeRamp
 from aviary.utils.named_values import NamedValues, get_keys
@@ -31,11 +32,11 @@ aliases = {Dynamic.Mission.ALTITUDE: ['h', 'alt', 'altitude'],
            }
 
 
-class TabularCruiseAero(om.Group):
+class TabularCruiseAero(AviaryGroup):
     """Free-air lift and drag using a table lookup."""
 
     def initialize(self):
-        self.options.declare('num_nodes', default=1, types=int)
+        super().initialize()
 
         self.options.declare('aero_data', types=(str, Path, NamedValues), default=None,
                              desc='Data file or NamedValues object containing lift and '
@@ -84,7 +85,7 @@ class TabularCruiseAero(om.Group):
         self.set_input_defaults(Dynamic.Mission.MACH, np.zeros(nn))
 
 
-class TabularLowSpeedAero(om.Group):
+class TabularLowSpeedAero(AviaryGroup):
     """Lift and drag near the ground using a table lookup.
 
     Includes increments due to ground effects, landing gear, and flaps. Retraction or
@@ -93,7 +94,7 @@ class TabularLowSpeedAero(om.Group):
     """
 
     def initialize(self):
-        self.options.declare("num_nodes", default=1, types=int)
+        super().initialize()
 
         self.options.declare('free_aero_data', types=(str, Path, NamedValues),
                              default=None,
@@ -428,7 +429,7 @@ def _build_free_aero_interp(num_nodes=0, aero_data=None, connect_training_data=F
     if connect_training_data:
         return interp_comp
     else:
-        group = om.Group()
+        group = AviaryGroup()
         group.add_subsystem('free_aero_interp', interp_comp, promotes=['*'])
 
         # approx CL max as that with highest alpha, assume alpha monotonically increasing

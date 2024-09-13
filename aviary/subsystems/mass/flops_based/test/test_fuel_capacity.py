@@ -3,6 +3,7 @@ import unittest
 import openmdao.api as om
 from parameterized import parameterized
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.mass.flops_based.fuel_capacity import (
     AuxFuelCapacity, FuelCapacityGroup, FuselageFuelCapacity,
     TotalFuelCapacity, WingFuelCapacity)
@@ -23,13 +24,7 @@ class FuelCapacityGroupTest(unittest.TestCase):
                           name_func=print_case)
     def test_case(self, case_name):
 
-        class PreMission(om.Group):
-
-            def initialize(self):
-                self.options.declare(
-                    'aviary_options', types=AviaryValues,
-                    desc='Aircraft options dictionary')
-
+        class PreMission(AviaryGroup):
             def setup(self):
                 aviary_options = self.options['aviary_options']
 
@@ -41,6 +36,7 @@ class FuelCapacityGroupTest(unittest.TestCase):
                 )
 
             def configure(self):
+                super().configure()
                 aviary_options = self.options['aviary_options']
 
                 # Overrides

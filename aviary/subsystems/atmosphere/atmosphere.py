@@ -2,21 +2,20 @@ import openmdao.api as om
 
 from dymos.models.atmosphere.atmos_1976 import USatm1976Comp
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.atmosphere.flight_conditions import FlightConditions
 from aviary.variable_info.enums import SpeedType
 from aviary.variable_info.variables import Dynamic
 
 
-class Atmosphere(om.Group):
+class Atmosphere(AviaryGroup):
     """
     Group that contains atmospheric conditions for the aircraft's current flight
     condition, as well as conversions for different speed types (TAS, EAS, Mach)
     """
 
     def initialize(self):
-        self.options.declare(
-            'num_nodes', types=int, desc='Number of nodes to be evaluated in the RHS'
-        )
+        super().initialize()
 
         self.options.declare(
             'h_def',

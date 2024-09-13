@@ -1,6 +1,7 @@
 import numpy as np
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.constants import GRAV_ENGLISH_LBM
 from aviary.subsystems.geometry.gasp_based.non_dimensional_conversion import \
     DimensionalNonDimensionalInterchange
@@ -952,14 +953,7 @@ class WingFold(om.ExplicitComponent):
             den * dNum_dy - num * dDen_dy) / den**2
 
 
-class WingGroup(om.Group):
-    def initialize(self):
-
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options'
-        )
-
+class WingGroup(AviaryGroup):
     def setup(self):
 
         aviary_options = self.options['aviary_options']

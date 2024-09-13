@@ -1,6 +1,7 @@
 import numpy as np
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.atmosphere.atmosphere import Atmosphere
 from aviary.subsystems.atmosphere.flight_conditions import FlightConditions
 from aviary.mission.gasp_based.ode.base_ode import BaseODE
@@ -80,7 +81,7 @@ class ClimbODE(BaseODE):
             mach_cruise = self.options["mach_cruise"]
 
             mach_balance_group = self.add_subsystem(
-                "mach_balance_group", subsys=om.Group(), promotes=["*"]
+                "mach_balance_group", subsys=AviaryGroup(), promotes=["*"]
             )
 
             mach_balance_group.nonlinear_solver = om.NewtonSolver()
@@ -122,7 +123,7 @@ class ClimbODE(BaseODE):
             )
 
             lift_balance_group = self.add_subsystem(
-                "lift_balance_group", subsys=om.Group(), promotes=["*"]
+                "lift_balance_group", subsys=AviaryGroup(), promotes=["*"]
             )
             flight_condition_group = mach_balance_group
 

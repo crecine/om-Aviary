@@ -7,6 +7,7 @@ import openmdao.api as om
 from aviary.subsystems.atmosphere.atmosphere import Atmosphere
 from openmdao.utils.assert_utils import assert_check_partials, assert_near_equal
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.aerodynamics.aerodynamics_builder import CoreAerodynamicsBuilder
 from aviary.subsystems.premission import CorePreMission
 from aviary.utils.test_utils.default_subsystems import get_default_premission_subsystems
@@ -550,22 +551,17 @@ def _run_computed_aero_harness(flops_inputs, dynamic_inputs, num_nodes):
     return prob
 
 
-class _ComputedAeroHarness(om.Group):
+class _ComputedAeroHarness(AviaryGroup):
     '''
     Calculate drag and drag polars.
     '''
 
     def initialize(self):
+        super().initialize()
         options = self.options
-
-        options.declare('num_nodes', types=int)
 
         options.declare(
             'gamma', default=1.4, desc='Ratio of specific heats for air.')
-
-        options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options')
 
     def setup(self):
         options = self.options

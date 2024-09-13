@@ -6,6 +6,7 @@ import openmdao.api as om
 
 from aviary.constants import GRAV_METRIC_FLOPS as grav_metric
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.functions import add_aviary_input, add_aviary_output
 from aviary.variable_info.variables import Dynamic, Mission
@@ -99,15 +100,14 @@ class StallSpeed(om.ExplicitComponent):
             -weight / (stall_speed * density * area * lift_coefficient_max**2)
 
 
-class TakeoffEOM(om.Group):
+class TakeoffEOM(AviaryGroup):
     '''
     Define a group for calculating takeoff equations of motion.
     '''
 
     def initialize(self):
+        super().initialize()
         options = self.options
-
-        options.declare('num_nodes', default=1, types=int, lower=0)
 
         options.declare(
             'climbing', default=False, types=bool,
@@ -118,10 +118,6 @@ class TakeoffEOM(om.Group):
             'friction_key',
             desc='current friction coefficient key, '
             'either rolling friction or braking friction')
-
-        options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options')
 
     def setup(self):
         options = self.options

@@ -1,6 +1,7 @@
 import numpy as np
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.subsystem_builder_base import SubsystemBuilderBase
 from aviary.subsystems.energy.battery_sizing import SizeBattery
 from aviary.variable_info.variables import Aircraft, Dynamic
@@ -15,8 +16,8 @@ class BatteryBuilder(SubsystemBuilderBase):
     def get_mass_names(self):
         return [Aircraft.Battery.MASS]
 
-    def build_mission(self, num_nodes, aviary_inputs=None) -> om.Group:
-        battery_group = om.Group()
+    def build_mission(self, num_nodes, aviary_inputs=None) -> AviaryGroup:
+        battery_group = AviaryGroup()
         # Here, the efficiency variable is used as an overall efficiency for the battery
         soc = om.ExecComp('state_of_charge = (energy_capacity - (cumulative_electric_energy_used/efficiency)) / energy_capacity',
                           state_of_charge={'val': np.zeros(

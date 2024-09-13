@@ -10,6 +10,7 @@ from openmdao.utils.assert_utils import assert_near_equal
 
 from aviary.interface.methods_for_level2 import AviaryProblem
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.subsystem_builder_base import SubsystemBuilderBase
 from aviary.utils.csv_data_file import read_data_file
 from aviary.utils.named_values import NamedValues
@@ -276,7 +277,7 @@ class FakeDragPolarBuilder(SubsystemBuilderBase):
             includes sizing, design, and other non-mission parameters.
         """
 
-        group = om.Group()
+        group = AviaryGroup()
 
         calc_drag_polar = FakeCalcDragPolar(altitude=self.altitude, mach=self.mach,
                                             alpha=self.alpha)

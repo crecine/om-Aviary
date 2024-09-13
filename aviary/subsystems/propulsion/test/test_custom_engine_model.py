@@ -4,6 +4,7 @@ import dymos as dm
 import openmdao.api as om
 from openmdao.utils.assert_utils import assert_near_equal
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.propulsion.engine_model import EngineModel
 from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.variables import Aircraft, Dynamic
@@ -23,7 +24,7 @@ else:
     use_new_dymos_syntax = True
 
 
-class PreMissionEngine(om.Group):
+class PreMissionEngine(AviaryGroup):
     def setup(self):
         self.add_subsystem(
             'dummy_comp',

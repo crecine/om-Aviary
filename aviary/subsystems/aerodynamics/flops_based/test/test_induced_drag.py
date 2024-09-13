@@ -4,6 +4,7 @@ import numpy as np
 import openmdao.api as om
 from openmdao.utils.assert_utils import assert_check_partials, assert_near_equal
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.aerodynamics.flops_based.induced_drag import InducedDrag
 from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.variables import Aircraft, Dynamic
@@ -21,7 +22,7 @@ class InducedDragTest(unittest.TestCase):
 
         nn = len(CL)
 
-        prob = om.Problem(model=om.Group())
+        prob = om.Problem(model=AviaryGroup())
 
         options = {}
         options[Aircraft.Wing.SPAN_EFFICIENCY_REDUCTION] = (False, 'unitless')
@@ -60,7 +61,7 @@ class InducedDragTest(unittest.TestCase):
 
         # High factor
 
-        prob = om.Problem(model=om.Group())
+        prob = om.Problem(model=AviaryGroup())
 
         options = {}
         options[Aircraft.Wing.SPAN_EFFICIENCY_REDUCTION] = (True, 'unitless')
@@ -89,7 +90,7 @@ class InducedDragTest(unittest.TestCase):
 
         # Low factor.
 
-        prob = om.Problem(model=om.Group())
+        prob = om.Problem(model=AviaryGroup())
 
         options = {}
         options[Aircraft.Wing.SPAN_EFFICIENCY_REDUCTION] = (True, 'unitless')

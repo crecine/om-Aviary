@@ -1,6 +1,7 @@
 import numpy as np
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.options import get_option_defaults
 from aviary.variable_info.functions import add_aviary_input, add_aviary_output
@@ -239,14 +240,7 @@ class FuselageSize(om.ExplicitComponent):
         J[Aircraft.TailBoom.LENGTH, "cabin_height"] = LoverD_tail
 
 
-class FuselageGroup(om.Group):
-    def initialize(self):
-
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options'
-        )
-
+class FuselageGroup(AviaryGroup):
     def setup(self):
 
         aviary_options = self.options['aviary_options']

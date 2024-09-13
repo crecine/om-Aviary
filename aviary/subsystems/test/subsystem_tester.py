@@ -5,6 +5,7 @@ from importlib import import_module
 import openmdao.api as om
 from openmdao.core.system import System
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.subsystem_builder_base import SubsystemBuilderBase
 from aviary.utils.aviary_values import AviaryValues
 
@@ -246,7 +247,7 @@ class TestSubsystemBuilderBase(unittest.TestCase):
         if mission_sys is None:
             return
 
-        group = om.Group()
+        group = AviaryGroup()
         group.add_subsystem('mission', mission_sys, promotes=['*'])
         prob = om.Problem(group)
         prob.setup()
@@ -270,7 +271,7 @@ class TestSubsystemBuilderBase(unittest.TestCase):
         if pre_mission_sys is None:
             return
 
-        group = om.Group()
+        group = AviaryGroup()
         group.add_subsystem('pre_mission_sys', pre_mission_sys)
         prob = om.Problem(group)
         prob.setup()
@@ -302,7 +303,7 @@ class TestSubsystemBuilderBase(unittest.TestCase):
         if mission_sys is None:
             return
 
-        group = om.Group()
+        group = AviaryGroup()
         group.add_subsystem('mission', mission_sys, promotes=['*'])
         prob = om.Problem(group)
         prob.setup()
@@ -327,7 +328,7 @@ class TestSubsystemBuilderBase(unittest.TestCase):
         if mission_sys is None:
             return
 
-        group = om.Group()
+        group = AviaryGroup()
         group.add_subsystem('mission', mission_sys, promotes=['*'])
         prob = om.Problem(group)
         prob.setup()
@@ -356,7 +357,7 @@ class TestSubsystemBuilderBase(unittest.TestCase):
         if pre_mission_sys is None:
             return
 
-        group = om.Group()
+        group = AviaryGroup()
         group.add_subsystem('pre_mission', pre_mission_sys, promotes=['*'])
         prob = om.Problem(group)
         prob.setup()
@@ -382,7 +383,7 @@ class TestSubsystemBuilderBase(unittest.TestCase):
         if mission_sys is None:
             return
 
-        group = om.Group()
+        group = AviaryGroup()
         group.add_subsystem('mission', mission_sys, promotes=['*'])
         prob = om.Problem(group)
         prob.setup()

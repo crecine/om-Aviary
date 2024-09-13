@@ -2,6 +2,7 @@ import numpy as np
 import openmdao.api as om
 from aviary.subsystems.atmosphere.atmosphere import Atmosphere
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.mission.gasp_based.ode.base_ode import BaseODE
 from aviary.mission.gasp_based.ode.params import ParamPort
 from aviary.mission.gasp_based.phases.breguet import RangeComp
@@ -35,7 +36,7 @@ class BreguetCruiseODESolution(BaseODE):
             promotes_outputs=["weight"]
         )
 
-        prop_group = om.Group()
+        prop_group = AviaryGroup()
 
         kwargs = {'num_nodes': nn, 'aviary_inputs': aviary_options,
                   'method': 'cruise', 'output_alpha': True}

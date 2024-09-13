@@ -1,5 +1,6 @@
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.geometry.gasp_based.electric import CableSize
 from aviary.subsystems.geometry.gasp_based.empennage import EmpennageSize
 from aviary.subsystems.geometry.gasp_based.engine import EngineSize
@@ -9,19 +10,12 @@ from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.variables import Aircraft
 
 
-class SizeGroup(om.Group):
+class SizeGroup(AviaryGroup):
 
     """
     Group to pull together all the different components and subgroups of the SIZE subroutine
 
     """
-
-    def initialize(self):
-
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options'
-        )
 
     def setup(self):
         aviary_options = self.options['aviary_options']

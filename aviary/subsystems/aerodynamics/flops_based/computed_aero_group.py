@@ -4,6 +4,7 @@ OpenMDAO System to compute drag based on the methods in FLOPS AERO.
 import numpy as np
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.aerodynamics.aero_common import DynamicPressure
 from aviary.subsystems.aerodynamics.flops_based.buffet_lift import BuffetLift
 from aviary.subsystems.aerodynamics.flops_based.compressibility_drag import \
@@ -21,18 +22,13 @@ from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.variables import Aircraft, Dynamic, Mission
 
 
-class ComputedAeroGroup(om.Group):
+class ComputedAeroGroup(AviaryGroup):
 
     def initialize(self):
-        self.options.declare(
-            "num_nodes", default=1, types=int,
-            desc="Number of nodes along mission segment")
+        super().initialize()
         self.options.declare(
             'gamma', default=1.4,
             desc='Ratio of specific heats for air.')
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options')
 
     def setup(self):
         num_nodes = self.options["num_nodes"]
@@ -147,10 +143,7 @@ class ComputedAeroGroup(om.Group):
             'SkinFrictionDrag.skin_friction_drag_coeff', 'Drag.skin_friction_drag_coeff')
 
 
-class ComputedDrag(om.Group):
-
-    def initialize(self):
-        self.options.declare('num_nodes', types=int)
+class ComputedDrag(AviaryGroup):
 
     def setup(self):
         nn = self.options["num_nodes"]

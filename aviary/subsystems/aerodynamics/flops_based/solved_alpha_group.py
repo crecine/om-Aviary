@@ -3,6 +3,7 @@ import openmdao.api as om
 
 from pathlib import Path
 
+from aviary.utils.base_classes import AviaryGroup
 import aviary.constants as constants
 from aviary.subsystems.aerodynamics.aero_common import DynamicPressure
 from aviary.subsystems.aerodynamics.gasp_based.table_based import TabularCruiseAero
@@ -12,7 +13,7 @@ from aviary.variable_info.variables import Aircraft, Dynamic
 grav_metric = constants.GRAV_METRIC_FLOPS
 
 
-class SolvedAlphaGroup(om.Group):
+class SolvedAlphaGroup(AviaryGroup):
     """
     Aerodynmaics group that computes the coefficients of lift and drag on a
     structured table of altitude, mach, and angle of attack. The angle of
@@ -26,7 +27,7 @@ class SolvedAlphaGroup(om.Group):
         """
         Declare options.
         """
-        self.options.declare('num_nodes', types=int)
+        super().initialize()
 
         self.options.declare('aero_data', types=(str, Path, NamedValues), default=None,
                              desc='Data file or NamedValues object containing lift and '

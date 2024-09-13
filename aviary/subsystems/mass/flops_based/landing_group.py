@@ -1,5 +1,6 @@
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.mass.flops_based.landing_gear import (
     AltLandingGearMass, LandingGearMass, MainGearLength, NoseGearLength)
 from aviary.subsystems.mass.flops_based.landing_mass import (
@@ -8,11 +9,7 @@ from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.variables import Aircraft, Mission
 
 
-class LandingMassGroup(om.Group):
-    def initialize(self):
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options')
+class LandingMassGroup(AviaryGroup):
 
     def setup(self):
         aviary_options: AviaryValues = self.options['aviary_options']

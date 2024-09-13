@@ -1,6 +1,7 @@
 import numpy as np
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.variable_info.functions import add_aviary_input
 from aviary.variable_info.variable_meta_data import _MetaData as _meta_data
 from aviary.variable_info.variables import Aircraft, Dynamic
@@ -143,7 +144,7 @@ class SimpleDrag(om.ExplicitComponent):
         partials[Dynamic.Mission.DRAG, 'CD'] = q * S
 
 
-class TotalDrag(om.Group):
+class TotalDrag(AviaryGroup):
     '''
     Calculate drag as a function of wing area, dynamic pressure, and lift-dependent and
     lift-independent drag coefficients.
@@ -161,9 +162,6 @@ class TotalDrag(om.Group):
     coefficient before calculating drag. The effect is cummulative with the above
     optional factors.
     '''
-
-    def initialize(self):
-        self.options.declare('num_nodes', types=int)
 
     def setup(self):
         nn = self.options['num_nodes']

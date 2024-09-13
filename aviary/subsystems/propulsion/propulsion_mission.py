@@ -3,11 +3,12 @@ import sys
 import numpy as np
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.variables import Aircraft, Dynamic, Settings
 
 
-class PropulsionMission(om.Group):
+class PropulsionMission(AviaryGroup):
     '''
     Group that tracks all engine models used during mission analysis. Accounts for
     number of engines for each type and returns aircraft-total dynamic values such
@@ -15,13 +16,7 @@ class PropulsionMission(om.Group):
     '''
 
     def initialize(self):
-        self.options.declare('num_nodes', types=int, lower=0)
-
-        self.options.declare(
-            'aviary_options',
-            types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options',
-        )
+        super().initialize()
 
         self.options.declare(
             'engine_models', types=list, desc='list of EngineModels on aircraft'

@@ -5,6 +5,7 @@ from copy import deepcopy
 import openmdao.api as om
 
 import aviary.api as av
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.subsystem_builder_base import SubsystemBuilderBase
 from aviary.subsystems.test.subsystem_tester import TestSubsystemBuilderBase
 from aviary.variable_info.variables import Aircraft as av_Aircraft
@@ -228,7 +229,7 @@ class DummyMissionComp(om.ExplicitComponent):
 
 class PreOnlyBuilder(SubsystemBuilderBase):
     def build_pre_mission(self, aviary_inputs):
-        group = om.Group()
+        group = AviaryGroup()
         group.add_subsystem('comp', DummyComp(), promotes=['*'])
         return group
 
@@ -238,7 +239,7 @@ class PreOnlyBuilder(SubsystemBuilderBase):
 
 class PostOnlyBuilder(SubsystemBuilderBase):
     def build_post_mission(self, aviary_values):
-        group = om.Group()
+        group = AviaryGroup()
         group.add_subsystem('comp', om.ExecComp('y = x**2'), promotes=['*'])
         return group
 
@@ -252,7 +253,7 @@ class FailingSubsystemBuilder(SubsystemBuilderBase):
         }
 
     def build_mission(self, num_nodes, aviary_inputs):
-        group = om.Group()
+        group = AviaryGroup()
         group.add_subsystem('comp', om.ExecComp('y = x**2'))
         return group
 
@@ -262,12 +263,12 @@ class ArrayGuessSubsystemBuilder(SubsystemBuilderBase):
         super().__init__(name, meta_data=ExtendedMetaData)
 
     def build_pre_mission(self, aviary_inputs):
-        group = om.Group()
+        group = AviaryGroup()
         group.add_subsystem('comp', DummyComp(), promotes=['*'])
         return group
 
     def build_mission(self, num_nodes, aviary_inputs):
-        group = om.Group()
+        group = AviaryGroup()
         group.add_subsystem('comp', DummyMissionComp(
             num_nodes=num_nodes), promotes=['*'])
         return group
@@ -334,12 +335,12 @@ class AdditionalArrayGuessSubsystemBuilder(SubsystemBuilderBase):
         super().__init__(name, meta_data=AdditionalMetaData)
 
     def build_pre_mission(self, aviary_inputs):
-        group = om.Group()
+        group = AviaryGroup()
         group.add_subsystem('comp', DummyWingspanComp(), promotes=['*'])
         return group
 
     def build_mission(self, num_nodes, aviary_inputs):
-        group = om.Group()
+        group = AviaryGroup()
         group.add_subsystem('comp', DummyFlightDurationComp(
             num_nodes=num_nodes), promotes=['*'])
         return group

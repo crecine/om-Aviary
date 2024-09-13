@@ -30,6 +30,7 @@ import openmdao.api as om
 
 from openmdao.utils.units import convert_units
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.propulsion.engine_model import EngineModel
 from aviary.subsystems.propulsion.engine_scaling import EngineScaling
 from aviary.subsystems.propulsion.engine_sizing import SizeEngine
@@ -811,7 +812,7 @@ class EngineDeck(EngineModel):
 
         return engine
 
-    def build_mission(self, num_nodes, aviary_inputs) -> om.Group:
+    def build_mission(self, num_nodes, aviary_inputs) -> AviaryGroup:
         """
         Creates interpolator objects to be added to mission-level propulsion subsystem.
         Interpolators must be re-generated for each ODE due to potentialy different
@@ -831,7 +832,7 @@ class EngineDeck(EngineModel):
         """
         interp_method = self.get_val(Aircraft.Engine.INTERPOLATION_METHOD)
 
-        engine_group = om.Group()
+        engine_group = AviaryGroup()
 
         engine = self._build_engine_interpolator(num_nodes, aviary_inputs)
         units = self.engine_variable_units

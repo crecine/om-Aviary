@@ -1,6 +1,7 @@
 import numpy as np
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.propulsion.engine_model import EngineModel
 from aviary.subsystems.propulsion.engine_deck import EngineDeck
 from aviary.subsystems.propulsion.utils import EngineModelVariables
@@ -64,10 +65,10 @@ class TurbopropModel(EngineModel):
             )
 
     # BUG if using both custom subsystems that happen to share a kwarg but need different values, this breaks
-    def build_pre_mission(self, aviary_inputs, **kwargs) -> om.Group:
+    def build_pre_mission(self, aviary_inputs, **kwargs) -> AviaryGroup:
         shp_model = self.shaft_power_model
         propeller_model = self.propeller_model
-        turboprop_group = om.Group()
+        turboprop_group = AviaryGroup()
         # TODO engine scaling for turboshafts requires EngineSizing to be refactored to
         # accept target scaling variable as an option, skipping for now
         if type(shp_model) is not EngineDeck:
@@ -106,7 +107,7 @@ class TurbopropModel(EngineModel):
     def build_post_mission(self, aviary_inputs, **kwargs):
         shp_model = self.shaft_power_model
         propeller_model = self.propeller_model
-        turboprop_group = om.Group()
+        turboprop_group = AviaryGroup()
         if type(shp_model) is not EngineDeck:
             shp_model_post_mission = shp_model.build_post_mission(
                 aviary_inputs, **kwargs
@@ -136,11 +137,9 @@ class TurbopropModel(EngineModel):
         return turboprop_group
 
 
-class TurbopropMission(om.Group):
+class TurbopropMission(AviaryGroup):
     def initialize(self):
-        self.options.declare(
-            'num_nodes', types=int, desc='Number of nodes to be evaluated in the RHS'
-        )
+        super().initialize()
         self.options.declare('shaft_power_model', desc='shaft power generation model')
         self.options.declare('propeller_model', desc='propeller model')
         self.options.declare('kwargs', desc='kwargs for turboprop mission models')
@@ -155,7 +154,7 @@ class TurbopropMission(om.Group):
         kwargs = self.options['kwargs']
         aviary_inputs = self.options['aviary_inputs']
 
-        max_thrust_group = om.Group()
+        max_thrust_group = AviaryGroup()
 
         try:
             shp_kwargs = kwargs[shp_model.name]

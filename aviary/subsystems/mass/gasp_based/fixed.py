@@ -2,6 +2,7 @@ import numpy as np
 import openmdao.api as om
 from openmdao.components.ks_comp import KSfunction
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.constants import GRAV_ENGLISH_LBM, RHO_SEA_LEVEL_ENGLISH
 from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.enums import FlapType
@@ -2418,13 +2419,7 @@ class GearMass(om.ExplicitComponent):
         )
 
 
-class FixedMassGroup(om.Group):
-    def initialize(self):
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options'
-        )
-
+class FixedMassGroup(AviaryGroup):
     def setup(self):
         aviary_options: AviaryValues = self.options['aviary_options']
 

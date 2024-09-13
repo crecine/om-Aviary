@@ -3,22 +3,21 @@ import sys
 import numpy as np
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.functions import add_aviary_input, add_aviary_output
 from aviary.variable_info.variables import Aircraft, Settings
 from aviary.variable_info.enums import Verbosity
 
 
-class PropulsionPreMission(om.Group):
+class PropulsionPreMission(AviaryGroup):
     '''
     Group that contains propulsion calculations for pre-mission analysis, such as
     computing scaling factors, and sums propulsion-system level totals.
     '''
 
     def initialize(self):
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options')
+        super().initialize()
         self.options.declare(
             'engine_models', types=list,
             desc='list of EngineModels on aircraft'

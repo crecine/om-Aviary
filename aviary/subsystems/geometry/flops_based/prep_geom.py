@@ -8,6 +8,7 @@ TODO: multiple engine model support
 import openmdao.api as om
 from numpy import pi
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.geometry.flops_based.canard import Canard
 from aviary.subsystems.geometry.flops_based.characteristic_lengths import \
     CharacteristicLengths
@@ -23,15 +24,10 @@ from aviary.variable_info.functions import add_aviary_input, add_aviary_output
 from aviary.variable_info.variables import Aircraft
 
 
-class PrepGeom(om.Group):
+class PrepGeom(AviaryGroup):
     '''
     Prepare derived values of aircraft geometry for aerodynamics analysis.
     '''
-
-    def initialize(self):
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options')
 
     def setup(self):
         aviary_options = self.options['aviary_options']

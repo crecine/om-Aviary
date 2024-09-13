@@ -4,6 +4,7 @@ import warnings
 import openmdao
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.variable_info.variables import Aircraft, Mission
 from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.variable_meta_data import _MetaData
@@ -12,13 +13,10 @@ from aviary.variable_info.functions import override_aviary_vars
 use_new_openmdao_syntax = version.parse(openmdao.__version__) >= version.parse("3.28")
 
 
-class CorePreMission(om.Group):
+class CorePreMission(AviaryGroup):
 
     def initialize(self):
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options'
-        )
+        super().initialize()
         self.options.declare(
             'subsystems', desc='list of core subsystem builders'
         )
@@ -47,6 +45,7 @@ class CorePreMission(om.Group):
             )
 
     def configure(self):
+        super().configure()
         self.manual_overrides = []
         for subsystem in self.options['subsystems']:
             try:

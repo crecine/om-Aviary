@@ -1,6 +1,7 @@
 import numpy as np
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.functions import add_aviary_input
 from aviary.variable_info.variables import Aircraft
@@ -199,18 +200,12 @@ class TailSize(om.ExplicitComponent):
         J["arm", "wing_ref"] = 1.0 / r_arm
 
 
-class EmpennageSize(om.Group):
+class EmpennageSize(AviaryGroup):
     """GASP geometry calculations for both horizontal and vertical tails.
 
     Volume coefficients for the tails may be either specified directly (default) or
     computed via empirical relationships to general airplane parameters.
     """
-
-    def initialize(self):
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options'
-        )
 
     def setup(self):
         # TODO: For cruciform/T-tail configurations, GASP checks to make sure the V tail

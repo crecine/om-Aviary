@@ -1,19 +1,15 @@
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.functions import add_aviary_input, add_aviary_output
 from aviary.variable_info.variables import Aircraft
 
 
-class FuelCapacityGroup(om.Group):
+class FuelCapacityGroup(AviaryGroup):
     """
     Compute the maximum fuel that can be carried.
     """
-
-    def initialize(self):
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options')
 
     def setup(self):
         aviary_options = self.options['aviary_options']

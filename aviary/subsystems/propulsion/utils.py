@@ -13,6 +13,7 @@ import openmdao.api as om
 
 import aviary.constants as constants
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.utils.aviary_values import AviaryValues
 from aviary.utils.named_values import NamedValues, get_keys, get_items
 from aviary.variable_info.variables import Dynamic, Mission
@@ -216,21 +217,14 @@ def build_engine_deck(aviary_options: AviaryValues, meta_data=_MetaData):
 
 
 # TODO combine with aviary/utils/data_interpolator_builder.py build_data_interpolator
-class EngineDataInterpolator(om.Group):
+class EngineDataInterpolator(AviaryGroup):
     '''
     Group that contains interpolators that get passed training data directly through
     openMDAO connections
     '''
 
     def initialize(self):
-        self.options.declare('num_nodes', types=int)
-
-        self.options.declare(
-            'aviary_options',
-            types=AviaryValues,
-            default=None,
-            desc='Collection of Aircraft/Mission specific options',
-        )
+        super().initialize()
 
         self.options.declare(
             'interpolator_inputs',
@@ -347,15 +341,7 @@ class EngineDataInterpolator(om.Group):
         )
 
 
-class UncorrectData(om.Group):
-    def initialize(self):
-        self.options.declare('num_nodes', types=int, default=1)
-        self.options.declare(
-            'aviary_options',
-            types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options',
-        )
-
+class UncorrectData(AviaryGroup):
     def setup(self):
         num_nodes = self.options['num_nodes']
 

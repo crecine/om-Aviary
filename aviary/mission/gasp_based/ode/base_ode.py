@@ -2,6 +2,7 @@ import numpy as np
 
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.atmosphere.atmosphere import Atmosphere
 from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.enums import AnalysisScheme, AlphaModes, SpeedType
@@ -10,19 +11,14 @@ from aviary.mission.ode.specific_energy_rate import SpecificEnergyRate
 from aviary.mission.ode.altitude_rate import AltitudeRate
 
 
-class BaseODE(om.Group):
+class BaseODE(AviaryGroup):
     def initialize(self):
-        self.options.declare("num_nodes", default=1, types=int)
+        super().initialize()
         self.options.declare(
             "analysis_scheme",
             default=AnalysisScheme.COLLOCATION,
             types=AnalysisScheme,
             desc="The analysis method that will be used to close the trajectory; for example collocation or time integration",
-        )
-
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options'
         )
 
         # TODO finish description
@@ -181,7 +177,7 @@ class BaseODE(om.Group):
 
     def AddThrottleControl(
         self,
-        prop_group=om.Group(),
+        prop_group=AviaryGroup(),
         num_nodes=1,
         atol=1e-12,
         rtol=1e-12,

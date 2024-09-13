@@ -1,6 +1,7 @@
 import openmdao.api as om
 from aviary.subsystems.atmosphere.atmosphere import Atmosphere
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.constants import GRAV_ENGLISH_LBM, RHO_SEA_LEVEL_METRIC
 from aviary.variable_info.functions import add_aviary_input, add_aviary_output
 from aviary.variable_info.variables import Aircraft, Dynamic, Mission
@@ -369,8 +370,9 @@ class FinalTakeoffConditions(om.ExplicitComponent):
             Mission.Takeoff.LIFT_OVER_DRAG] = dRD_dLoD + dRot_dLoD + dCout_dLoD
 
 
-class TakeoffGroup(om.Group):
+class TakeoffGroup(AviaryGroup):
     def initialize(self):
+        super().initialize()
         self.options.declare("num_engines", desc="number of engines on aircraft")
 
     def setup(self):

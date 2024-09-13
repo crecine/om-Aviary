@@ -1,5 +1,6 @@
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.mass.gasp_based.design_load import DesignLoadGroup
 from aviary.subsystems.mass.gasp_based.equipment_and_useful_load import \
     EquipAndUsefulLoadMass
@@ -10,14 +11,7 @@ from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.variables import Aircraft
 
 
-class MassPremission(om.Group):
-    def initialize(self):
-
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options'
-        )
-
+class MassPremission(AviaryGroup):
     def setup(self):
 
         aviary_options = self.options['aviary_options']

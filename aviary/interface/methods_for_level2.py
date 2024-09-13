@@ -15,8 +15,6 @@ import dymos as dm
 from dymos.utils.misc import _unspecified
 
 import openmdao.api as om
-from openmdao.core.component import Component
-from openmdao.utils.mpi import MPI
 from openmdao.utils.reports_system import _default_reports
 
 from aviary.constants import GRAV_ENGLISH_LBM, RHO_SEA_LEVEL_ENGLISH
@@ -39,6 +37,7 @@ from aviary.mission.gasp_based.phases.taxi_group import TaxiSegment
 from aviary.mission.gasp_based.phases.v_rotate_comp import VRotateComp
 from aviary.mission.gasp_based.polynomial_fit import PolynomialFit
 from aviary.subsystems.premission import CorePreMission
+from aviary.utils.base_classes import AviaryGroup
 from aviary.utils.functions import create_opts2vals, add_opts2vals, promote_aircraft_and_mission_vars, wrapped_convert_units
 from aviary.utils.process_input_decks import create_vehicle, update_GASP_options, initial_guessing
 from aviary.utils.preprocessors import preprocess_crewpayload
@@ -93,116 +92,6 @@ class PreMissionGroup(om.Group):
 class PostMissionGroup(om.Group):
     def configure(self):
         promote_aircraft_and_mission_vars(self)
-
-
-class AviaryGroup(om.Group):
-    """
-    A standard OpenMDAO group that handles Aviary's promotions in the configure
-    method. This assures that we only call set_input_defaults on variables
-    that are present in the model.
-    """
-
-    def initialize(self):
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options')
-        self.options.declare(
-            'aviary_metadata', types=dict,
-            desc='metadata dictionary of the full aviary problem.')
-        self.options.declare(
-            'phase_info', types=dict,
-            desc='phase-specific settings.')
-
-    def configure(self):
-        aviary_options = self.options['aviary_options']
-        aviary_metadata = self.options['aviary_metadata']
-
-        # Find promoted name of every input in the model.
-        all_prom_inputs = []
-
-        # We can call list_inputs on the groups.
-        for system in self.system_iter(recurse=False, typ=om.Group):
-            var_abs = system.list_inputs(out_stream=None, val=False)
-            var_prom = [v['prom_name'] for k, v in var_abs]
-            all_prom_inputs.extend(var_prom)
-
-        # Component promotes aren't handled until this group resolves.
-        # Here, we address anything promoted with an alias in AviaryProblem.
-        for system in self.system_iter(recurse=False, typ=Component):
-            input_meta = system._var_promotes['input']
-            var_prom = [v[0][1] for v in input_meta if isinstance(v[0], tuple)]
-            all_prom_inputs.extend(var_prom)
-            var_prom = [v[0] for v in input_meta if not isinstance(v[0], tuple)]
-            all_prom_inputs.extend(var_prom)
-
-        if MPI and self.comm.size > 1:
-            # Under MPI, promotion info only lives on rank 0, so broadcast.
-            all_prom_inputs = self.comm.bcast(all_prom_inputs, root=0)
-
-        for key in aviary_metadata:
-
-            if ':' not in key or key.startswith('dynamic:'):
-                continue
-
-            if aviary_metadata[key]['option']:
-                continue
-
-            # Skip anything that is not presently an input.
-            if key not in all_prom_inputs:
-                continue
-
-            if key in aviary_options:
-                val, units = aviary_options.get_item(key)
-            else:
-                val = aviary_metadata[key]['default_value']
-                units = aviary_metadata[key]['units']
-
-                if val is None:
-                    # optional, but no default value
-                    continue
-
-            self.set_input_defaults(key, val=val, units=units)
-
-        # The section below this contains some manipulations of the dymos solver
-        # structure for height energy.
-        if aviary_options.get_val(Settings.EQUATIONS_OF_MOTION) is not HEIGHT_ENERGY:
-            return
-
-        phase_info = self.options['phase_info']
-
-        # Set a more appropriate solver for dymos when the phases are linked.
-        if MPI and isinstance(self.traj.phases.linear_solver, om.PETScKrylov):
-
-            # When any phase is connected with input_initial = True, dymos puts
-            # a jacobi solver in the phases group. This is necessary in case
-            # the phases are cyclic. However, this causes some problems
-            # with the newton solvers in Aviary, exacerbating issues with
-            # solver tolerances at multiple levels. Since Aviary's phases
-            # are basically in series, the jacobi solver is a much better
-            # choice and should be able to handle it in a couple of
-            # iterations.
-            self.traj.phases.linear_solver = om.LinearBlockJac(maxiter=5)
-
-        # Due to recent changes in dymos, there is now a solver in any phase
-        # that has connected initial states. It is not clear that this solver
-        # is necessary except in certain corner cases that do not apply to the
-        # Aviary trajectory. In our case, this solver merely addresses a lag
-        # in the state input component. Since this solver can cause some
-        # numerical problems, and can slow things down, we need to move it down
-        # into the state interp component.
-        # TODO: Future updates to dymos may make this unneccesary.
-        for phase in self.traj.phases.system_iter(recurse=False):
-
-            # Don't move the solvers if we are using solve segements.
-            if phase_info[phase.name]['user_options'].get('solve_for_distance'):
-                continue
-
-            phase.nonlinear_solver = om.NonlinearRunOnce()
-            phase.linear_solver = om.LinearRunOnce()
-            if isinstance(phase.indep_states, om.ImplicitComponent):
-                phase.indep_states.nonlinear_solver = \
-                    om.NewtonSolver(solve_subsystems=True)
-                phase.indep_states.linear_solver = om.DirectSolver(rhs_checking=True)
 
 
 class AviaryProblem(om.Problem):

@@ -1,5 +1,6 @@
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.functions import add_aviary_input, add_aviary_output
 from aviary.variable_info.variables import Aircraft
@@ -111,14 +112,7 @@ class FoldCalcs(om.ExplicitComponent):
                      Aircraft.Wing.SPAN] = inputs[folded_span_name+"_dimensionless"]
 
 
-class DimensionalNonDimensionalInterchange(om.Group):
-    def initialize(self):
-
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options'
-        )
-
+class DimensionalNonDimensionalInterchange(AviaryGroup):
     def setup(self):
 
         aviary_options = self.options['aviary_options']

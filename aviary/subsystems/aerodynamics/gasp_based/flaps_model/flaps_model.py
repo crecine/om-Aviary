@@ -1,5 +1,6 @@
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.aerodynamics.gasp_based.flaps_model.basic_calculations import \
     BasicFlapsCalculations
 from aviary.subsystems.aerodynamics.gasp_based.flaps_model.Cl_max import \
@@ -13,16 +14,13 @@ from aviary.variable_info.enums import FlapType
 from aviary.variable_info.variables import Aircraft, Dynamic
 
 
-class FlapsGroup(om.Group):
+class FlapsGroup(AviaryGroup):
     """
     Group connecting four components of the flaps model.
     """
 
     def initialize(self):
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options'
-        )
+        super().initialize()
 
         # optimum trailing edge flap deflection angle defaults (ADELTO table in GASP)
         self.optimum_flap_defls = {

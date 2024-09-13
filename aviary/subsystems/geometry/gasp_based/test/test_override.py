@@ -1,7 +1,7 @@
 import openmdao.api as om
 from openmdao.utils.assert_utils import assert_near_equal
 
-from aviary.interface.methods_for_level2 import AviaryGroup
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.premission import CorePreMission
 from aviary.variable_info.variables import Aircraft
 

@@ -3,6 +3,7 @@ import numpy as np
 import openmdao.api as om
 from aviary.subsystems.atmosphere.atmosphere import Atmosphere
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.mission.flops_based.ode.mission_EOM import MissionEOM
 from aviary.mission.gasp_based.ode.time_integration_base_classes import add_SGM_required_inputs, add_SGM_required_outputs
 from aviary.subsystems.propulsion.throttle_allocation import ThrottleAllocator
@@ -13,22 +14,12 @@ from aviary.variable_info.variables import Aircraft, Dynamic, Mission
 from aviary.variable_info.enums import AnalysisScheme, ThrottleAllocation, SpeedType
 
 
-class ExternalSubsystemGroup(om.Group):
-    def configure(self):
-        promote_aircraft_and_mission_vars(self)
-
-
-class MissionODE(om.Group):
+class MissionODE(AviaryGroup):
     def initialize(self):
-        self.options.declare(
-            'num_nodes', types=int,
-            desc='Number of nodes to be evaluated in the RHS')
+        super().initialize()
         self.options.declare(
             'subsystem_options', types=dict, default={},
             desc='dictionary of parameters to be passed to the subsystem builders')
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options')
         self.options.declare(
             'core_subsystems',
             desc='list of core subsystem builder instances to be added to the ODE'
@@ -117,7 +108,7 @@ class MissionODE(om.Group):
         # Create a lightly modified version of an OM group to add external subsystems
         # to the ODE with a special configure() method that promotes
         # all aircraft:* and mission:* variables to the ODE.
-        external_subsystem_group = ExternalSubsystemGroup()
+        external_subsystem_group = AviaryGroup()
         add_subsystem_group = False
 
         for subsystem in self.options['external_subsystems']:

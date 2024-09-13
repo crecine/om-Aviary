@@ -3,6 +3,7 @@ import openmdao.api as om
 
 from pathlib import Path
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.aerodynamics.flops_based.drag import TotalDrag as Drag
 from aviary.subsystems.aerodynamics.flops_based.lift import \
     LiftEqualsWeight as CL
@@ -27,11 +28,10 @@ aliases = {Dynamic.Mission.ALTITUDE: ['h', 'alt', 'altitude'],
            }
 
 
-class TabularAeroGroup(om.Group):
+class TabularAeroGroup(AviaryGroup):
     def initialize(self):
+        super().initialize()
         options = self.options
-
-        options.declare('num_nodes', types=int)
 
         options.declare('CD0_data', types=(str, Path, NamedValues),
                         desc='Data file or NamedValues object containing zero-lift drag '

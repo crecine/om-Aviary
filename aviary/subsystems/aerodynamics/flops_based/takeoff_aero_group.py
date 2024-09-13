@@ -7,6 +7,7 @@ import numpy as np
 import openmdao.api as om
 import scipy.constants as _units
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.aerodynamics.flops_based.ground_effect import \
     GroundEffect
 from aviary.subsystems.aerodynamics.gasp_based.common import AeroForces
@@ -14,15 +15,14 @@ from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.variables import Aircraft, Dynamic, Mission
 
 
-class TakeoffAeroGroup(om.Group):
+class TakeoffAeroGroup(AviaryGroup):
     '''
     Define a group for calculating takeoff aerodynamics.
     '''
 
     def initialize(self):
+        super().initialize()
         options = self.options
-
-        options.declare('num_nodes', default=1, types=int, lower=0)
 
         options.declare(
             'ground_altitude', default=0., types=float,
@@ -75,10 +75,6 @@ class TakeoffAeroGroup(om.Group):
             'landing_gear_up', default=False, types=bool,
             desc='true for retracted landing gear'
         )
-
-        options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options')
 
     def setup(self):
         options = self.options

@@ -3,6 +3,7 @@ import unittest
 
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.interface.methods_for_level2 import AviaryProblem
 from aviary.subsystems.subsystem_builder_base import SubsystemBuilderBase
 from aviary.interface.default_phase_info.height_energy import phase_info as ph_in
@@ -48,7 +49,7 @@ class WingWeightBuilder(SubsystemBuilderBase):
             the pre-mission part of the Aviary problem. This
             includes sizing, design, and other non-mission parameters.
         '''
-        wing_group = om.Group()
+        wing_group = AviaryGroup()
         wing_group.add_subsystem(
             "aerostructures",
             WingWeightSubsys(),

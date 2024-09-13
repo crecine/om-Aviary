@@ -3,18 +3,19 @@ import numpy as np
 import openmdao.api as om
 from aviary.utils.aviary_values import AviaryValues
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.variable_info.variables import Dynamic, Aircraft
 from aviary.subsystems.propulsion.motor.model.motor_map import MotorMap
 
 
-class MotorMission(om.Group):
+class MotorMission(AviaryGroup):
 
     '''
     Calculates the mission performance (ODE) of a single electric motor.
     '''
 
     def initialize(self):
-        self.options.declare("num_nodes", types=int)
+        super().initialize()
         self.options.declare(
             'aviary_inputs', types=AviaryValues,
             desc='collection of Aircraft/Mission specific options',
@@ -30,7 +31,7 @@ class MotorMission(om.Group):
 
         self.add_subsystem('ivc', ivc, promotes=['*'])
 
-        motor_group = om.Group()
+        motor_group = AviaryGroup()
 
         motor_group.add_subsystem(
             'motor_map',
@@ -83,7 +84,7 @@ class MotorMission(om.Group):
 
         # Determine the maximum power available at this flight condition
         # this is used for excess power constraints
-        motor_group_max = om.Group()
+        motor_group_max = AviaryGroup()
 
         # these two groups are the same as those above
         motor_group_max.add_subsystem(

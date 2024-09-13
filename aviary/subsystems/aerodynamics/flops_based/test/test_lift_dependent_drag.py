@@ -4,6 +4,7 @@ import numpy as np
 import openmdao.api as om
 from openmdao.utils.assert_utils import assert_check_partials, assert_near_equal
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.aerodynamics.flops_based.lift_dependent_drag import \
     LiftDependentDrag
 from aviary.variable_info.variables import Aircraft, Dynamic, Mission
@@ -23,7 +24,7 @@ class LiftDependentDragTest(unittest.TestCase):
 
         nn = len(CL)
 
-        prob = om.Problem(model=om.Group())
+        prob = om.Problem(model=AviaryGroup())
         prob.model.add_subsystem('drag', LiftDependentDrag(num_nodes=nn), promotes=['*'])
         prob.setup(force_alloc_complex=True)
 
@@ -60,7 +61,7 @@ class LiftDependentDragTest(unittest.TestCase):
 
         nn = len(CL)
 
-        prob = om.Problem(model=om.Group())
+        prob = om.Problem(model=AviaryGroup())
         prob.model.add_subsystem('drag', LiftDependentDrag(num_nodes=nn), promotes=['*'])
         prob.setup(force_alloc_complex=True)
 

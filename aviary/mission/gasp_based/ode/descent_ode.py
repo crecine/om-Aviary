@@ -2,6 +2,7 @@ import numpy as np
 import openmdao.api as om
 from aviary.subsystems.atmosphere.atmosphere import Atmosphere
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.mission.gasp_based.ode.base_ode import BaseODE
 from aviary.mission.gasp_based.ode.params import ParamPort
 from aviary.mission.gasp_based.ode.descent_eom import DescentRates
@@ -90,7 +91,7 @@ class DescentODE(BaseODE):
 
             if input_speed_type is SpeedType.MACH:
                 mach_balance_group = self.add_subsystem(
-                    "mach_balance_group", subsys=om.Group(), promotes=["*"]
+                    "mach_balance_group", subsys=AviaryGroup(), promotes=["*"]
                 )
 
                 mach_balance_group.options['auto_order'] = True
@@ -138,7 +139,7 @@ class DescentODE(BaseODE):
                 flight_condition_group = mach_balance_group
 
             lift_balance_group = self.add_subsystem(
-                "lift_balance_group", subsys=om.Group(), promotes=["*"]
+                "lift_balance_group", subsys=AviaryGroup(), promotes=["*"]
             )
 
         elif analysis_scheme is AnalysisScheme.SHOOTING:

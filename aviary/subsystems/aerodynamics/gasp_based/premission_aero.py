@@ -7,6 +7,7 @@ the dynamic aero.
 import openmdao.api as om
 from aviary.subsystems.atmosphere.atmosphere import Atmosphere
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.aerodynamics.gasp_based.flaps_model import FlapsGroup
 from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.variables import Aircraft, Dynamic, Mission
@@ -16,14 +17,8 @@ from aviary.variable_info.enums import SpeedType
 # with alpha > alpha_stall
 
 
-class PreMissionAero(om.Group):
+class PreMissionAero(AviaryGroup):
     """Takeoff and landing flaps modeling"""
-
-    def initialize(self):
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options'
-        )
 
     def setup(self):
 

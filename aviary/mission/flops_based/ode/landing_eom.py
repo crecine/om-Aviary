@@ -4,6 +4,7 @@ Define utilities for calculating landing EOMs.
 import numpy as np
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.constants import GRAV_METRIC_FLOPS as grav_metric
 from aviary.mission.flops_based.ode.takeoff_eom import (Accelerations,
                                                         DistanceRates,
@@ -15,19 +16,10 @@ from aviary.variable_info.functions import add_aviary_input
 from aviary.variable_info.variables import Aircraft, Dynamic, Mission
 
 
-class FlareEOM(om.Group):
+class FlareEOM(AviaryGroup):
     '''
     Define a group for calculating equations of motion from start of flare to touchdown.
     '''
-
-    def initialize(self):
-        options = self.options
-
-        options.declare('num_nodes', default=1, types=int, lower=0)
-
-        options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options')
 
     def setup(self):
         options = self.options

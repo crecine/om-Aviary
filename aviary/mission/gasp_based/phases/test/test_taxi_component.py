@@ -4,6 +4,7 @@ import openmdao.api as om
 from openmdao.utils.assert_utils import (assert_check_partials,
                                          assert_near_equal)
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.utils.aviary_values import AviaryValues
 from aviary.mission.gasp_based.phases.taxi_component import TaxiFuelComponent
 from aviary.variable_info.variables import Dynamic, Mission
@@ -11,7 +12,7 @@ from aviary.variable_info.variables import Dynamic, Mission
 
 class TaxiFuelComponentTestCase(unittest.TestCase):
     def setUp(self):
-        self.prob = om.Problem(model=om.Group())
+        self.prob = om.Problem(model=AviaryGroup())
 
         aviary_options = AviaryValues()
         aviary_options.set_val(Mission.Taxi.DURATION, 0.1677, units="h")

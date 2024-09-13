@@ -5,6 +5,7 @@ import numpy as np
 
 from openmdao.components.ks_comp import KSfunction
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.utils.aviary_values import AviaryValues
 from aviary.utils.functions import add_aviary_input, add_aviary_output
 from aviary.variable_info.enums import OutMachType
@@ -301,18 +302,10 @@ class OutMachs(om.ExplicitComponent):
                 np.sqrt(helical_mach * helical_mach - mach * mach)
 
 
-class InstallLoss(om.Group):
+class InstallLoss(AviaryGroup):
     """
     Compute installation loss
     """
-
-    def initialize(self):
-        self.options.declare(
-            'num_nodes', types=int, default=1,
-            desc='Number of nodes to be evaluated in the RHS')
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options')
 
     def setup(self):
         nn = self.options['num_nodes']
@@ -414,7 +407,7 @@ class InstallLoss(om.Group):
         )
 
 
-class PropellerPerformance(om.Group):
+class PropellerPerformance(AviaryGroup):
     """
     Computation of propeller thrust coefficient based on the Hamilton Standard model or a user
     provided propeller map. Note that a propeller map allows either the helical Mach number or
@@ -424,15 +417,10 @@ class PropellerPerformance(om.Group):
     """
 
     def initialize(self):
-        self.options.declare(
-            'num_nodes', types=int, default=1,
-            desc='Number of nodes to be evaluated in the RHS')
+        super().initialize()
         self.options.declare(
             'input_rpm', types=bool, default=False,
             desc='If True, the input is RPM, otherwise RPM is set by propeller limits')
-
-        self.options.declare('aviary_options', types=AviaryValues,
-                             desc='collection of Aircraft/Mission specific options')
 
     def setup(self):
         options = self.options

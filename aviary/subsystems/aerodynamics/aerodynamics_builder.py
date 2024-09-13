@@ -16,6 +16,7 @@ from dymos.utils.misc import _unspecified
 
 from aviary.variable_info.variables import Aircraft, Mission, Dynamic
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.subsystem_builder_base import SubsystemBuilderBase
 from aviary.subsystems.aerodynamics.flops_based.aero_report import AeroReport
 from aviary.subsystems.aerodynamics.flops_based.design import Design
@@ -76,7 +77,7 @@ class CoreAerodynamicsBuilder(AerodynamicsBuilderBase):
             aero_group = PreMissionAero(aviary_options=aviary_inputs)
 
         elif code_origin is FLOPS:
-            aero_group = om.Group()
+            aero_group = AviaryGroup()
             aero_group.add_subsystem(
                 'design', Design(aviary_options=aviary_inputs),
                 promotes_inputs=['*'],

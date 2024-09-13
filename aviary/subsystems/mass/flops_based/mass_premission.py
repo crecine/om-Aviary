@@ -1,5 +1,6 @@
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.mass.flops_based.air_conditioning import (
     AltAirCondMass, TransportAirCondMass)
 from aviary.subsystems.mass.flops_based.anti_icing import AntiIcingMass
@@ -49,12 +50,7 @@ from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.variables import Aircraft, Mission
 
 
-class MassPremission(om.Group):
-    def initialize(self):
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options')
-
+class MassPremission(AviaryGroup):
     def setup(self):
         aviary_options: AviaryValues = self.options['aviary_options']
         alt_mass = aviary_options.get_val(Aircraft.Design.USE_ALT_MASS)

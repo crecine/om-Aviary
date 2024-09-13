@@ -1,6 +1,7 @@
 import numpy as np
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.constants import RHO_SEA_LEVEL_ENGLISH
 from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.functions import add_aviary_input, add_aviary_output
@@ -1224,14 +1225,7 @@ class LoadFactors(om.ExplicitComponent):
         partials[Aircraft.Wing.ULTIMATE_LOAD_FACTOR, "min_dive_vel"] = dULF_dmin_dive_vel
 
 
-class DesignLoadGroup(om.Group):
-    def initialize(self):
-
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options'
-        )
-
+class DesignLoadGroup(AviaryGroup):
     def setup(self):
 
         aviary_options = self.options['aviary_options']

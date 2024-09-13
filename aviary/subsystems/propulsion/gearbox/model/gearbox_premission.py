@@ -1,11 +1,12 @@
 import openmdao.api as om
 import numpy as np
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.variable_info.variables import Aircraft, Dynamic
 from aviary.utils.aviary_values import AviaryValues
 
 
-class GearboxPreMission(om.Group):
+class GearboxPreMission(AviaryGroup):
     """
     Calculate gearbox mass for a single gearbox.
 
@@ -14,6 +15,7 @@ class GearboxPreMission(om.Group):
     """
 
     def initialize(self, ):
+        super().initialize()
         self.options.declare("simple_mass", types=bool, default=True)
         self.options.declare(
             "aviary_inputs", types=AviaryValues,

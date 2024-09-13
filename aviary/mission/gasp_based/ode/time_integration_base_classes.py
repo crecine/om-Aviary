@@ -98,7 +98,7 @@ class SimuPyProblem(SimulationMixin):
         self.dt = 0.0
         prob = om.Problem()
         if aviary_options:
-            from aviary.interface.methods_for_level2 import AviaryGroup
+            from aviary.utils.base_classes import AviaryGroup
             prob.model = AviaryGroup(
                 aviary_options=aviary_options, aviary_metadata=meta_data)
         prob.model.add_subsystem(

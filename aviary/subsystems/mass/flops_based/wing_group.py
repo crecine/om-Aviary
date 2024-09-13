@@ -1,6 +1,7 @@
 import numpy as np
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.subsystems.mass.flops_based.engine_pod import EnginePodMass
 from aviary.subsystems.mass.flops_based.wing_common import (
     WingBendingMass, WingMiscMass, WingShearControlMass, WingTotalMass)
@@ -10,12 +11,7 @@ from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.variables import Aircraft
 
 
-class WingMassGroup(om.Group):
-    def initialize(self):
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options')
-
+class WingMassGroup(AviaryGroup):
     def setup(self):
         aviary_options: AviaryValues = self.options['aviary_options']
 

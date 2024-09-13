@@ -1,18 +1,13 @@
 import numpy as np
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.utils.aviary_values import AviaryValues
 from aviary.variable_info.enums import FlapType
 from aviary.variable_info.variables import Aircraft, Dynamic
 
 
-class MetaModelGroup(om.Group):
-    def initialize(self):
-        self.options.declare(
-            'aviary_options', types=AviaryValues,
-            desc='collection of Aircraft/Mission specific options'
-        )
-
+class MetaModelGroup(AviaryGroup):
     def setup(self):
 
         flap_type = self.options["aviary_options"].get_val(

@@ -2,6 +2,7 @@ import numpy as np
 
 import openmdao.api as om
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.variable_info.variables import Dynamic, Aircraft
 
 
@@ -27,7 +28,7 @@ motor_map = np.array([
 ]).T
 
 
-class MotorMap(om.Group):
+class MotorMap(AviaryGroup):
 
     '''
     This function takes in 0-1 values for electric motor throttle,
@@ -53,9 +54,6 @@ class MotorMap(om.Group):
     Dynamic.Mission.Motor.EFFICIENCY : float (positive)
 
     '''
-
-    def initialize(self):
-        self.options.declare("num_nodes", types=int)
 
     def setup(self):
         n = self.options["num_nodes"]

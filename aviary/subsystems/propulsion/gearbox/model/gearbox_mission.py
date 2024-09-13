@@ -3,14 +3,15 @@ import numpy as np
 import openmdao.api as om
 from aviary.utils.aviary_values import AviaryValues
 
+from aviary.utils.base_classes import AviaryGroup
 from aviary.variable_info.variables import Dynamic, Aircraft, Mission
 
 
-class GearboxMission(om.Group):
+class GearboxMission(AviaryGroup):
     """Calculates the mission performance (ODE) of a single gearbox."""
 
     def initialize(self):
-        self.options.declare("num_nodes", types=int)
+        super().initialize()
         self.options.declare(
             'aviary_inputs', types=AviaryValues,
             desc='collection of Aircraft/Mission specific options',
